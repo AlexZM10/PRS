@@ -9,14 +9,7 @@ export async function login(username: string, password: string) {
   });
 
   if (!res.ok) {
-    let detail = `Error ${res.status}`;
-    try {
-      const payload = await res.json();
-      detail = payload?.detail || "Credenciales inválidas";
-    } catch {
-      // ignore JSON parse errors and keep generic detail
-    }
-    throw new Error(detail);
+    throw new Error(await parseAuthError(res));
   }
 
   const data = await res.json(); // { access, refresh }
@@ -37,4 +30,43 @@ export function logout() {
     clearAuthStorage();
     window.localStorage.removeItem("username");
   }
+}
+
+async function parseAuthError(res: Response) {
+  const messages: Record<number, string> = {
+    400: "Usuario o contraseña inválidos.",
+    401: "Usuario o contraseña inválidos.",
+    403: "Acceso denegado.",
+  };
+
+  const fallback = messages[res.status] ?? `Error ${res.status}`;
+
+  try {
+    const data = await res.json();
+    const detail = typeof data?.detail === "string" ? data.detail : null;
+
+    if (detail) {
+      return mapKnownDetail(detail) ?? fallback;
+    }
+  } catch {
+    // Ignorar errores de parseo y usar mensaje por defecto
+  }
+
+  return fallback;
+}
+
+function mapKnownDetail(detail: string) {
+  const normalized = detail.trim().toLowerCase();
+
+  if (normalized.includes("no active account")) {
+    return "No existe una cuenta activa con esas credenciales.";
+  }
+  if (normalized.includes("invalid credentials") || normalized.includes("incorrect credentials")) {
+    return "Usuario o contraseña inválidos.";
+  }
+  if (normalized.includes("credentials were not provided")) {
+    return "Debes ingresar usuario y contraseña.";
+  }
+
+  return null;
 }
