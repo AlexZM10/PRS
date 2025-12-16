@@ -1,11 +1,10 @@
-# API pública del dominio para imports estables desde capas superiores.
+"""API publica del dominio para imports estables desde capas superiores."""
 
-from .ports import value_objects as _vo
 from .entities import Empleado, RadioFrecuencia, SapUsuario, Prestamo
 from .value_objects import Turno, EstadoPrestamo, Cedula, CodigoRF, Username
 from .rules import calcular_turno, clean_doc, clean_sap, clean_rf
 from .errors import DomainError, EntityNotFound, InactiveEntity, BusinessRuleViolation
-from .events import AdminChangeEvent
+from .events import AdminChangeEvent, AuditLogRecord
 
 # Puertos
 from .ports.repositories import (
@@ -14,21 +13,21 @@ from .ports.repositories import (
     SapUsuarioRepository,
     PrestamoRepository,
 )
-from .ports.audit import AuditLogRepository
+from .ports.audit import AuditLogRepository, AuditLogQueryRepository
 from .ports.uow import UnitOfWork
 
 __all__ = [
-    # Entities
+    # Entidades
     "Empleado", "RadioFrecuencia", "SapUsuario", "Prestamo",
     # Value Objects
     "Turno", "EstadoPrestamo", "Cedula", "CodigoRF", "Username",
-    # Rules
+    # Reglas
     "calcular_turno", "clean_doc", "clean_sap", "clean_rf",
-    # Errors
+    # Errores
     "DomainError", "EntityNotFound", "InactiveEntity", "BusinessRuleViolation",
-    # Events
-    "AdminChangeEvent",
-    # Ports
+    # Eventos
+    "AdminChangeEvent", "AuditLogRecord",
+    # Puertos
     "EmpleadoRepository", "RadioRepository", "SapUsuarioRepository", "PrestamoRepository",
-    "AuditLogRepository", "UnitOfWork",
+    "AuditLogRepository", "AuditLogQueryRepository", "UnitOfWork",
 ]
